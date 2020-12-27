@@ -1,0 +1,5 @@
+-cp src
+-lib heaps
+-lib eventbeacon
+-main Main
+-dce full
