@@ -294,10 +294,11 @@ Main.prototype = $extend(hxd_App.prototype,{
 		var tf = new h2d_Text(font);
 		tf.set_text("Testing");
 		this.s2d.addChild(tf);
-		var map = JSON.parse(hxd_Res.get_loader().loadCache("mymap.json",hxd_res_Resource).entry.getText());
+		var json = JSON.parse(hxd_Res.get_loader().loadCache("mymap.json",hxd_res_Resource).entry.getText());
+		var map = json;
 		var t = hxd_Res.get_loader().loadCache("tileset.png",hxd_res_Image).toTile();
-		var th = 32;
-		var tw = 32;
+		var th = map.tileheight;
+		var tw = map.tilewidth;
 		var _g = [];
 		var _g1 = 0;
 		var _g2 = t.height / th | 0;
@@ -329,9 +330,9 @@ Main.prototype = $extend(hxd_App.prototype,{
 				} else {
 					var bmp = new h2d_Bitmap(tileset[tile - 1]);
 					bmp.posChanged = true;
-					bmp.x = (i % 20 | 0) * tw;
+					bmp.x = (i % map.width | 0) * tw;
 					bmp.posChanged = true;
-					bmp.y = (i / 20 | 0) * th;
+					bmp.y = (i / map.height | 0) * th;
 					this.s2d.addChild(bmp);
 					++i;
 				}
@@ -9256,6 +9257,30 @@ var h3d_impl_RenderFlag = $hxEnums["h3d.impl.RenderFlag"] = { __ename__ : true, 
 	,CameraHandness: {_hx_index:0,__enum__:"h3d.impl.RenderFlag",toString:$estr}
 };
 h3d_impl_RenderFlag.__empty_constructs__ = [h3d_impl_RenderFlag.CameraHandness];
+var haxe_IMap = function() { };
+$hxClasses["haxe.IMap"] = haxe_IMap;
+haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__isInterface__ = true;
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
+};
+$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
+haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.keysIterator = function(h) {
+	var keys = Object.keys(h);
+	var len = keys.length;
+	var idx = 0;
+	return { hasNext : function() {
+		return idx < len;
+	}, next : function() {
+		idx += 1;
+		return keys[idx - 1];
+	}};
+};
+haxe_ds_StringMap.prototype = {
+	__class__: haxe_ds_StringMap
+};
 var h3d_impl_InputNames = function(names) {
 	this.id = h3d_impl_InputNames.UID++;
 	this.names = names;
@@ -11996,6 +12021,35 @@ h3d_mat_Stencil.prototype = {
 		return this.backDPfail = v;
 	}
 	,__class__: h3d_mat_Stencil
+};
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
+haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
+haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+haxe_ds_IntMap.prototype = {
+	remove: function(key) {
+		if(!this.h.hasOwnProperty(key)) {
+			return false;
+		}
+		delete(this.h[key]);
+		return true;
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
+		return new haxe_iterators_ArrayIterator(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
+	}
+	,__class__: haxe_ds_IntMap
 };
 var hxd_PixelFormat = $hxEnums["hxd.PixelFormat"] = { __ename__ : true, __constructs__ : ["ARGB","BGRA","RGBA","RGBA16F","RGBA32F","R8","R16F","R32F","RG8","RG16F","RG32F","RGB8","RGB16F","RGB32F","SRGB","SRGB_ALPHA","RGB10A2","RG11B10UF","R16U","RGB16U","RGBA16U","S3TC"]
 	,ARGB: {_hx_index:0,__enum__:"hxd.PixelFormat",toString:$estr}
@@ -18347,10 +18401,6 @@ h3d_shader_VolumeDecal.prototype = $extend(hxsl_Shader.prototype,{
 	}
 	,__class__: h3d_shader_VolumeDecal
 });
-var haxe_IMap = function() { };
-$hxClasses["haxe.IMap"] = haxe_IMap;
-haxe_IMap.__name__ = "haxe.IMap";
-haxe_IMap.__isInterface__ = true;
 var haxe_EntryPoint = function() { };
 $hxClasses["haxe.EntryPoint"] = haxe_EntryPoint;
 haxe_EntryPoint.__name__ = "haxe.EntryPoint";
@@ -19740,35 +19790,6 @@ haxe_ds_EnumValueMap.prototype = $extend(haxe_ds_BalancedTree.prototype,{
 	}
 	,__class__: haxe_ds_EnumValueMap
 });
-var haxe_ds_IntMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
-haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
-haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
-haxe_ds_IntMap.prototype = {
-	remove: function(key) {
-		if(!this.h.hasOwnProperty(key)) {
-			return false;
-		}
-		delete(this.h[key]);
-		return true;
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
-		return new haxe_iterators_ArrayIterator(a);
-	}
-	,iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
-	}
-	,__class__: haxe_ds_IntMap
-};
 var haxe_ds__$List_ListNode = function(item,next) {
 	this.item = item;
 	this.next = next;
@@ -19812,26 +19833,6 @@ haxe_ds_ObjectMap.prototype = {
 		return new haxe_iterators_ArrayIterator(a);
 	}
 	,__class__: haxe_ds_ObjectMap
-};
-var haxe_ds_StringMap = function() {
-	this.h = Object.create(null);
-};
-$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
-haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
-haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
-haxe_ds_StringMap.keysIterator = function(h) {
-	var keys = Object.keys(h);
-	var len = keys.length;
-	var idx = 0;
-	return { hasNext : function() {
-		return idx < len;
-	}, next : function() {
-		idx += 1;
-		return keys[idx - 1];
-	}};
-};
-haxe_ds_StringMap.prototype = {
-	__class__: haxe_ds_StringMap
 };
 var haxe_io_BytesBuffer = function() {
 	this.pos = 0;

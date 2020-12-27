@@ -7,6 +7,14 @@ import h2d.Font;
 import ecs.*;
 import level.*;
 
+typedef TiledJson = {
+    var width: Int;
+    var height: Int;
+    var tileheight: Int;
+    var tilewidth: Int;
+    var layers: Array<{ data: Array<Int> }>;
+}
+
 class Main extends hxd.App {
     public var paused : Bool = false;
     public static var UpdateList = new List<GameObject>();
@@ -19,45 +27,54 @@ class Main extends hxd.App {
         hxd.Res.initEmbed();
         Window.getInstance().addEventTarget(OnEvent);
 
+        // Render title screen (temp)
         var font : Font = hxd.res.DefaultFont.get();
         var tf = new h2d.Text(font);
         tf.text = "Testing";
         s2d.addChild(tf);
 
-        var map : { layers: Array<{ data: Array<Int> }> } = Json.parse(Res.mymap.entry.getText());
+        
+        // Parse Tiled json map
+        var json = Json.parse(Res.mymap.entry.getText());
+        var map : TiledJson = json;
+        var th = map.tileheight;
+        var tw = map.tilewidth;
 
-        var t = Res.tileset.toTile();
-        var th = 32;
-        var tw = 32;
 
+       // Select tileset
+       var t = Res.tileset.toTile();
+
+        // Split tileset in tiles
         var tileset = [
             for (y in 0...Std.int(t.height/th))
                 for (x in 0 ...Std.int(t.width/tw))
                     t.sub(x * tw, y * th, tw, th)
-
         ];
-        
+
+
+        // Render layers
         var layerNumber = 0;
 
         for (layer in map.layers) {
             var i : Int = 0;
             for (tile in layer.data) {
+                // Skip unused tiles
                 if (tile==0) {
                     i++;
                     continue;
                 }
+                // Render tiles
                 else {
                     var bmp : Bitmap = new Bitmap(tileset[tile - 1]);
-                    bmp.setPosition(Std.int(i % 20) * tw, Std.int(i / 20) * th);
+                    bmp.setPosition(Std.int(i % map.width) * tw, Std.int(i / map.height) * th);
                     s2d.addChild(bmp);
                     i++;
                 }
             }
 
+            // Next layer
             layerNumber++;
         }
-
-
     }
 
     override function update(dt:Float) {
