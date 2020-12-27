@@ -9,5 +9,5 @@ There is not gonna be no physics library binding bcz I don't find that more fun 
 
 ## Dependencies
 
-haxelib install heaps
-haxelib install eventbeacon
+- haxelib install heaps
+- haxelib install eventbeacon
